@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "module-template"
+name = "groupchat-kb"
 version = "0.1.0"
 description = ""
 authors = ["Richard Blythman <richardblythman@gmail.com>"]
@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<=3.13"
-naptha-sdk = {git = "https://github.com/NapthaAI/naptha-sdk.git"}
+naptha-sdk = {git = "https://github.com/NapthaAI/naptha-sdk.git", branch = "feat/unified-storage-api"}
 python-dotenv = "^1.0.1"
 
 [build-system]

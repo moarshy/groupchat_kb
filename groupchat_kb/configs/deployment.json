@@ -1,0 +1,17 @@
+[
+    {
+        "name": "groupchat_kb_deployment_1",
+        "module": {"name": "groupchat_kb"},
+        "node": {"ip": "localhost"},
+        "config": {
+            "storage_type": "db",
+            "path": "groupchat_kb",
+            "schema": {
+                "run_id": {"type": "text", "primary_key": true},
+                "messages": {"type": "jsonb"}  
+            },
+            "options": null
+        }
+    }
+]
+
