@@ -4,7 +4,7 @@ from groupchat_kb.schemas import InputSchema
 import random
 from typing import Dict, Any
 from naptha_sdk.schemas import KBRunInput, KBDeployment
-from naptha_sdk.storage.schemas import CreateTableRequest, CreateRowRequest, DatabaseReadOptions, ReadStorageRequest, ListStorageRequest
+from naptha_sdk.storage.schemas import CreateTableRequest, CreateRowRequest, DatabaseReadOptions, ReadStorageRequest, ListStorageRequest, DeleteStorageRequest
 from naptha_sdk.storage.storage_provider import StorageProvider
 from naptha_sdk.utils import get_logger
 
@@ -64,6 +64,15 @@ class GroupChatKB:
         logger.info(f"List rows result: {list_storage_result}")
         return {"status": "success", "message": f"List rows result: {list_storage_result}"}
 
+
+    async def delete_table(self, input_data: Dict[str, Any], *args, **kwargs):
+        delete_table_request = DeleteStorageRequest(
+            storage_type=self.storage_type,
+            path=input_data['table_name'],
+        )
+        delete_table_result = await self.storage_provider.delete(delete_table_request)
+        logger.info(f"Delete table result: {delete_table_result}")
+        return {"status": "success", "message": f"Delete table result: {delete_table_result}"}
 
 # TODO: Make it so that the create function is called when the kb/create endpoint is called
 async def create(deployment: KBDeployment):
@@ -128,11 +137,15 @@ if __name__ == "__main__":
             func_name="list_rows",
             func_input_data={"limit": 10},
         ),
+        "delete_table": InputSchema(
+            func_name="delete_table",
+            func_input_data={"table_name": "groupchat_kb"},
+        ),
     }
 
 
     module_run = KBRunInput(
-        inputs=inputs_dict["list_rows"],
+        inputs=inputs_dict["delete_table"],
         deployment=deployment,
         consumer_id=naptha.user.id,
     )
