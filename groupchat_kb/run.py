@@ -101,7 +101,9 @@ async def create(deployment: KBDeployment):
     logger.info(f"Result: {create_table_result}")
 
 # Default entrypoint when the module is executed
-async def run(module_run: KBRunInput):
+async def run(module_run: Dict):
+    module_run = KBRunInput(**module_run)
+    module_run.inputs = InputSchema(**module_run.inputs)
     groupchat_kb = GroupChatKB(module_run.deployment)
     method = getattr(groupchat_kb, module_run.inputs.func_name, None)
     return await method(module_run.inputs.func_input_data)
