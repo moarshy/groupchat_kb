@@ -119,13 +119,13 @@ if __name__ == "__main__":
     deployment = asyncio.run(setup_module_deployment("kb", "groupchat_kb/configs/deployment.json", node_url = os.getenv("NODE_URL")))
 
     inputs_dict = {
-        "init": InputSchema(
-            func_name="init",
-            func_input_data=None,
-        ),
-        "add_data": InputSchema(
-            func_name="add_data",
-            func_input_data={
+        "init": {
+            "func_name": "init",
+            "func_input_data": None,
+        },
+        "add_data": {
+            "func_name": "add_data",
+            "func_input_data": {
                 "run_id": "123",
                 "messages": [
                     {
@@ -134,23 +134,23 @@ if __name__ == "__main__":
                     }
                 ]
             },
-        ),
-        "list_rows": InputSchema(
-            func_name="list_rows",
-            func_input_data={"limit": 10},
-        ),
-        "delete_table": InputSchema(
-            func_name="delete_table",
-            func_input_data={"table_name": "groupchat_kb"},
-        ),
+        },
+        "list_rows": {
+            "func_name": "list_rows",
+            "func_input_data": {"limit": 10},
+        },
+        "delete_table": {
+            "func_name": "delete_table",
+            "func_input_data": {"table_name": "groupchat_kb"},
+        },
     }
 
 
-    module_run = KBRunInput(
-        inputs=inputs_dict["delete_table"],
-        deployment=deployment,
-        consumer_id=naptha.user.id,
-    )
+    module_run = {
+        "inputs": inputs_dict["delete_table"],
+        "deployment": deployment,
+        "consumer_id": naptha.user.id,
+    }
 
     response = asyncio.run(run(module_run))
 

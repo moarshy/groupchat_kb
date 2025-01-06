@@ -770,8 +770,8 @@ tomlkit = "^0.13.2"
 [package.source]
 type = "git"
 url = "https://github.com/NapthaAI/naptha-sdk.git"
-reference = "feat/unified-storage-api"
-resolved_reference = "06a1127c8eeeb3f40105286d6c025a1da58fbfe8"
+reference = "HEAD"
+resolved_reference = "39d06081301a467c7578c514e55bcd83e13991e2"
 
 [[package]]
 name = "natsort"
@@ -1492,4 +1492,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<=3.13"
-content-hash = "7dbbad174e139fce46139721cbd1426caf824e649081fada12c33a3e8cd85ce2"
+content-hash = "35c17477bfda21643669fb64ecd3bd81e51d23a815fa75711cd6cb08b4c562ac"
