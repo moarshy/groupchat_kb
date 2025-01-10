@@ -4,8 +4,9 @@ from groupchat_kb.schemas import InputSchema
 import random
 from typing import Dict, Any
 from naptha_sdk.schemas import KBRunInput, KBDeployment
-from naptha_sdk.storage.schemas import CreateTableRequest, CreateRowRequest, DatabaseReadOptions, ReadStorageRequest, ListStorageRequest, DeleteStorageRequest
+from naptha_sdk.storage.schemas import CreateStorageRequest, ReadStorageRequest, ListStorageRequest, DeleteStorageRequest
 from naptha_sdk.storage.storage_provider import StorageProvider
+from naptha_sdk.user import sign_consumer_id
 from naptha_sdk.utils import get_logger
 
 load_dotenv()
@@ -34,21 +35,22 @@ class GroupChatKB:
         if 'id' not in input_data:
             input_data['id'] = random.randint(1, 1000000)
 
-        read_result = await self.storage_provider.read(ReadStorageRequest(
+        read_result = await self.storage_provider.execute(ReadStorageRequest(
             storage_type=self.storage_type,
             path=self.table_name,
-            options=DatabaseReadOptions(conditions=[{"run_id": input_data["run_id"]}])
+            options={"conditions": [{"run_id": input_data["run_id"]}]}
         ))
 
         # make sure run_id are not in the table
-        if len(read_result) > 0:
+        if len(read_result.data) > 0:
             return {"status": "error", "message": f"Run {input_data['run_id']} already exists in table {self.table_name}"}
 
-        create_row_result = await self.storage_provider.create(CreateRowRequest(
+        create_row_result = await self.storage_provider.execute(CreateStorageRequest(
             storage_type=self.storage_type,
             path=self.table_name,
-            data=input_data
+            data={"data": input_data}
         ))
+
         logger.info(f"Create row result: {create_row_result}")
 
         logger.info(f"Successfully added {input_data} to table {self.table_name}")
@@ -58,9 +60,9 @@ class GroupChatKB:
         list_storage_request = ListStorageRequest(
             storage_type=self.storage_type,
             path=self.table_name,
-            options=DatabaseReadOptions(limit=input_data['limit'] if input_data and 'limit' in input_data else None)
+            options={"limit": input_data['limit'] if input_data and 'limit' in input_data else None}
         )
-        list_storage_result = await self.storage_provider.list(list_storage_request)
+        list_storage_result = await self.storage_provider.execute(list_storage_request)
         logger.info(f"List rows result: {list_storage_result}")
         return {"status": "success", "message": f"List rows result: {list_storage_result}"}
 
@@ -70,7 +72,7 @@ class GroupChatKB:
             storage_type=self.storage_type,
             path=input_data['table_name'],
         )
-        delete_table_result = await self.storage_provider.delete(delete_table_request)
+        delete_table_result = await self.storage_provider.execute(delete_table_request)
         logger.info(f"Delete table result: {delete_table_result}")
         return {"status": "success", "message": f"Delete table result: {delete_table_result}"}
 
@@ -85,18 +87,18 @@ async def create(deployment: KBDeployment):
     storage_provider = StorageProvider(deployment.node)
     storage_type = deployment.config.storage_type
     table_name = deployment.config.path
-    schema = deployment.config.schema
+    schema = {"schema": deployment.config.schema}
 
     logger.info(f"Creating {storage_type} at {table_name} with schema {schema}")
 
-    create_table_request = CreateTableRequest(
+    create_table_request = CreateStorageRequest(
         storage_type=storage_type,
         path=table_name,
-        schema=schema
+        data=schema
     )
 
     # Create a table
-    create_table_result = await storage_provider.create(create_table_request)
+    create_table_result = await storage_provider.execute(create_table_request)
 
     logger.info(f"Result: {create_table_result}")
 
@@ -150,6 +152,7 @@ if __name__ == "__main__":
         "inputs": inputs_dict["delete_table"],
         "deployment": deployment,
         "consumer_id": naptha.user.id,
+        "signature": sign_consumer_id(naptha.user.id, os.getenv("PRIVATE_KEY"))
     }
 
     response = asyncio.run(run(module_run))
